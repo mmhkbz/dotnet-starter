@@ -13,6 +13,11 @@ builder.Services.AddSwaggerGen();
 var dbSettings = builder.Configuration.GetSection(DatabaseSettings.SectionName).Get<DatabaseSettings>()
     ?? new DatabaseSettings();
 
+// Configure Material Theme Settings
+var themeSettings = builder.Configuration.GetSection(MaterialThemeSettings.SectionName).Get<MaterialThemeSettings>()
+    ?? new MaterialThemeSettings();
+builder.Services.AddSingleton(themeSettings);
+
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(dbSettings.GetConnectionString())
@@ -48,6 +53,13 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast")
+.WithOpenApi();
+
+app.MapGet("/theme", (MaterialThemeSettings settings) =>
+{
+    return new { ColorMode = settings.Mode.ToString() };
+})
+.WithName("GetTheme")
 .WithOpenApi();
 
 app.Run();
